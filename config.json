@@ -1,0 +1,20 @@
+{
+    "databaseURI": "postgres://<username>:<password>@<host>:<port>/<database>?sslmode=disable",
+    "fromEmail": "<fromEmail>",
+    "toEmail": "<toEmail>",
+    "emailSubject": "Email Subject",
+    "password": "<password>",
+    "emailBody": "Find the attached Excel file.",
+    "smtpHost": "<smtpHost>",
+    "smtpPort": "<smtpPort>",
+    "queries": [
+        {
+            "attachmentName": "<attachmentName1>.xlsx",
+            "query": "<Select QUERY>"
+        },
+        {
+            "attachmentName": "<attachmentName2>.xlsx",
+            "query": "<Select QUERY>"
+        }
+    ]
+}
