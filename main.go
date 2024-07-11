@@ -37,13 +37,16 @@ type FileAttachment struct {
 
 func main() {
 
+	// Logging to a file
 	logFile, err := os.OpenFile("app.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	defer logFile.Close()
 	log.SetOutput(logFile)
 
 	log.Println("Script invoked...")
 
+	// Importing the config for the queries and other variables needed
 	configFile, err := os.Open("config.json")
+
 	if err != nil {
 		log.Fatalf("Error opening config file: %v", err)
 	}
@@ -61,11 +64,6 @@ func main() {
 
 	defer db.Close()
 
-	// rows, err := db.Query(config.Queries[0].Query)
-	// CheckError(err)
-
-	// defer rows.Close()
-
 	for _, query := range config.Queries {
 		attachment := FileAttachment{AttachmentName: query.AttachmentName, Content: getAttachments(db, &query)}
 		sendEmail(&config, &attachment)
@@ -79,20 +77,25 @@ func sendEmail(config *Config, attachment *FileAttachment) {
 	m.SetHeader("To", config.ToEmail)
 	m.SetHeader("Subject", config.EmailSubject)
 	m.SetBody("text/plain", config.EmailBody)
+
 	// Attach the Excel file from the buffer
 	m.Attach(attachment.AttachmentName, gomail.SetCopyFunc(func(w io.Writer) error {
 		_, err := w.Write(attachment.Content)
 		return err
 	}))
+
 	// Send the email
 	d := gomail.NewDialer(config.SMTPHost, config.SMTPPort, config.FromEmail, config.Password)
 	if err := d.DialAndSend(m); err != nil {
 		log.Fatal(err)
 	}
+
 	log.Println("Email sent successfully with the Excel file.")
 }
 
 func getAttachments(db *sql.DB, query *Query) []byte {
+
+	// Querying the database and returning the result as a binary to be attached in email
 	rows, err := db.Query(query.Query)
 	CheckError(err)
 	defer rows.Close()
@@ -152,6 +155,9 @@ func getAttachments(db *sql.DB, query *Query) []byte {
 }
 
 func CheckError(err error) {
+
+	// Simple error logger
+
 	if err != nil {
 		log.Fatalf("Error: %v", err)
 		panic(err)
